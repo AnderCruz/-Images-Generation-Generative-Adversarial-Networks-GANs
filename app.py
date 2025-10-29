@@ -1,31 +1,52 @@
 import streamlit as st
-import torch
 from diffusers import StableDiffusionPipeline
+import torch
 from PIL import Image
 
+# Configuração da página
 st.set_page_config(page_title="AI Image Generator", layout="centered")
-st.title("🖼️ AI Image Generator")
+st.title("🖼️ AI Image Generator with Diffusers")
 
+# Carregando pipeline com cache
 @st.cache_resource
 def load_pipeline():
     pipe = StableDiffusionPipeline.from_pretrained(
-        "runwayml/stable-diffusion-v1-5",
+        "stabilityai/stable-diffusion-2-1",
         torch_dtype=torch.float32
     )
-    pipe.to("cpu")  # se não tiver GPU
+    # Mover para GPU se disponível
+    if torch.cuda.is_available():
+        pipe = pipe.to("cuda")
     return pipe
 
 pipe = load_pipeline()
 
+st.markdown("Enter a text prompt to generate an image!")
+
+# Input de prompt
 prompt = st.text_input("Image description (in English):")
 
-if st.button("Generate"):
+# Botão para gerar imagem
+if st.button("Generate Image"):
     if not prompt:
-        st.warning("⚠️ Please enter a prompt!")
+        st.warning("Please enter a prompt first!")
     else:
-        with st.spinner("Generating image..."):
-            image = pipe(prompt, guidance_scale=7.5).images[0]
-            st.image(image, use_column_width=True)
-            image.save("generated.png")
-            with open("generated.png", "rb") as f:
-                st.download_button("📥 Download Image", f, "generated.png", "image/png")
+        with st.spinner("Generating, please wait..."):
+            # Gerar imagem
+            image = pipe(prompt).images[0]
+
+            # Mostrar imagem
+            st.image(image, caption="Generated Image", use_column_width=True)
+            st.success("Image generated successfully ✅")
+
+            # Salvar e oferecer download
+            img_path = "generated_image.png"
+            image.save(img_path)
+            with open(img_path, "rb") as file:
+                st.download_button(
+                    label="📥 Download Image",
+                    data=file,
+                    file_name="generated_image.png",
+                    mime="image/png"
+                )
+
