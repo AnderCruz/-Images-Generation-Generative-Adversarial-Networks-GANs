@@ -1,7 +1,7 @@
-streamlit
-diffusers
-transformers
-torch
-accelerate
+streamlit==1.51.0
+diffusers==0.35.2
+transformers==4.57.1
+torch==2.9.0
+accelerate==1.11.0
 safetensors
 Pillow
