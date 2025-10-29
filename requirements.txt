@@ -1,4 +1,7 @@
 streamlit
-tensorflow
-keras-cv
-matplotlib
+diffusers
+transformers
+torch
+accelerate
+safetensors
+Pillow
